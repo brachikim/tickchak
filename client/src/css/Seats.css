@@ -1,0 +1,146 @@
+/* Add this CSS to your AuditoriumMap.css or a relevant CSS file */
+.back-button-container {
+    position: relative;
+    display: inline-block;
+    margin-top: 40px;
+    margin-right:1200px;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background-color: #00bcd4; /* Adjust the color as needed */
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    font-size: 50px;
+}
+
+
+
+.back-button-tooltip {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #00bcd4; /* Adjust the color as needed */
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.back-button-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #00bcd4; /* Adjust the color as needed */
+}
+
+
+
+/* Seats.css */
+
+.continue-button {
+    background-color: #007bff; /* צבע רקע כחול */
+    color: white; /* צבע טקסט לבן */
+    border: none; /* ללא גבול */
+    padding: 10px 20px; /* ריפוד פנים */
+    font-size: 16px; /* גודל גופן */
+    cursor: pointer; /* סמן עכבר */
+    margin-top: 2px; /* מרווח עליון */
+}
+
+.continue-button:hover {
+    background-color: #0056b3; /* צבע רקע כחול כהה בהעברת העכבר */
+}
+
+.continue-button:focus {
+    outline: none; /* הסר קו תחתון בעת התמקדות */
+}
+
+.continue-button:active {
+    background-color: #004380; /* צבע רקע כחול כהה בלחיצה */
+}
+
+
+.seats-container {
+    display: flex;
+    flex-direction: column;
+    margin-left: 20%;
+    margin-top: 15px;
+}
+
+.seat-row {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10px; /* Space between rows */
+}
+
+.seat-item {
+    margin-right: 5px; /* Space between seats */
+    width: 15px; /* Adjust the width as needed to match button width */
+    height: 13px; /* Adjust the height as needed to match button height */
+}
+
+.invisible-seat {
+    visibility: hidden; /* Hide the seat but keep the space */
+}
+
+.btnSeats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 16px;
+    border-radius: 3px;
+    border: 2px solid #000;
+    background-color: #fff;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: bold;
+    font-family: monospace;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+
+
+
+/* Other styles... */
+
+
+
+
+
+.timer-circle {
+    position: fixed; /* מיקום קבוע על הדף */
+    top: 30px; /* מרווח מלמעלה של העמוד */
+    right: 40px; /* מרווח משמאל של העמוד */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #f3f3f3;
+    font-size: 24px;
+    font-weight: bold;
+    border: 2px solid #ccc;
+    z-index: 1000; /* שכבה גבוהה יותר מכל האלמנטים האחרים */
+  }
+  
