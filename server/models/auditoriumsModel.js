@@ -1,94 +1,46 @@
-const { json } = require('express');
+// const { putAuditorium } = require('../controllers/auditoriumsController.js');
 const pool = require('../DB.js');
 
-async function getUser(id) {
-    try {
-
-      const sql = 'SELECT * FROM users natural join address where id=?';
-      const result = await pool.query(sql, [id]);
-      if( !result[0][0])
-         {
-         
-          return res.status(200).json({});
-         }
-     return result[0][0];
-  
-    } catch (err) {
-      console.log(err);
-    }
-}
-async function getUserWithPassword(userName) {
+async function getAllAuditoriums(auditoriumExists) {
   try {
-    const sql = 'SELECT users.*, passwords.password, address.* FROM users JOIN passwords ON users.id = passwords.user_id NATURAL JOIN address WHERE users.username = ?;';
-    const result = await pool.query(sql, [userName]);
-    return result[0][0];
-  } catch (err) {
-    console.log(err);
-  }
-}
-async function checkByUsername(userName) {
-  try {
-    const sql = 'SELECT * FROM users WHERE users.username = ?;';
-    const result = await pool.query(sql, [userName]);
-    console.log(result)
-    return result[0][0];
-  } catch (err) {
-    console.log(err);
-  }
-}
-async function getAllUsers() {
-  try {
-    const sql = 'SELECT * FROM users NATURAL JOIN address';
-    const result = await pool.query(sql);
+    const sql = 'SELECT auditoriumId, auditoriumName, auditoriumExists FROM auditoriums WHERE auditoriumExists = ?';
+    const result = await pool.query(sql, [auditoriumExists]);
     return result[0];
   } catch (err) {
-    console.log(err);
+    console.error(err);
+    throw err;
   }
 }
-async function deleteUser(id) {
+async function getAuditoriumById(name) {
   try {
-    const sql3 = 'DELETE FROM passwords WHERE user_id=?';
-    await pool.query(sql3, [id]);
-    const sql2 = 'DELETE FROM address WHERE id=?';
-    await pool.query(sql2, [id]);
-    const sql1 = 'DELETE FROM users WHERE id=?';
-    await pool.query(sql1, [id]);
+    const sql = 'SELECT auditoriumId FROM auditoriums WHERE auditoriumName = ?';
+    const result = await pool.query(sql, [name]);
+    return result[0][0];
   } catch (err) {
-    console.log(err);
-    throw err; 
+    console.error(err);
+    throw err;
   }
 }
-
-
-async function putUser(id, name, username, email, street, city, phone, password) {
+async function addAuditorium(auditoriumName) {
   try {
-    const sql1 = `UPDATE users SET name = ?, username = ?, email = ?, phone = ? WHERE id = ?`;
-    await pool.query(sql1, [name, username, email, phone, id]);
-    const sql2 = `UPDATE address SET street = ?, city = ? WHERE id = ?`;
-    await pool.query(sql2, [street, city, id]);
-    // const sql3 = `UPDATE passwords SET password = ? WHERE user_id = ?`;
-    // await pool.query(sql3, [password, id]);
+    const sql = 'INSERT INTO auditoriums (auditoriumName, auditoriumExists) VALUES (?, ?)';
+    const result = await pool.query(sql, [auditoriumName, false]);
+    return { auditoriumId: result[0].insertId, auditoriumName, auditoriumExists: false };
   } catch (err) {
-    console.error("Error updating user:", err);
-    throw err; 
+    console.error(err);
+    throw err;
   }
 }
 
-async function postUser(name, username, email, phone, street, city,password) {
+
+async function putAuditorium(name) {
   try {
-    const sql1 = 'INSERT INTO users (name, username, email, phone) VALUES (?, ?, ?, ?)';
-    const userResult = await pool.query(sql1, [name, username, email, phone]);
-    const userId = userResult[0].insertId;
-    const sql2 = 'INSERT INTO address (id, street, city) VALUES (?, ?, ?)';
-    await pool.query(sql2, [userId, street, city]);
-    const sql3 = 'INSERT INTO passwords (user_id,password) VALUES (?, ?)';
-    await pool.query(sql3, [userId,password]);
-    return { userId }; 
+    const sql = 'UPDATE auditoriums SET auditoriumExists = TRUE WHERE auditoriumName = ?';
+    const result = await pool.query(sql, [name]);
+    return result[0].affectedRows;
   } catch (err) {
-    console.log(err);
-    throw err; 
+    console.error(err);
+    throw err;
   }
 }
-
-
-module.exports = {getUser,getAllUsers,getUserWithPassword,deleteUser,putUser,postUser,checkByUsername}
+module.exports = { getAllAuditoriums, addAuditorium , putAuditorium,getAuditoriumById };

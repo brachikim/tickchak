@@ -1,73 +1,67 @@
-const model = require('../model/usersModel');
-// const bcrypt = require('bcrypt');
-// const crypto = require('crypto');
+const model = require('../models/auditoriumsModel');
+const audPartModel = require('../models/auditoriumsPartsModel');
+const seatsModel = require('../models/seatsViewModel');
 
+async function getAllAuditoriums(auditoriumExists) {
+    try {
+      return await model.getAllAuditoriums(auditoriumExists);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+}
 
-// async function getUserById(id) {
-//     try {
-//         return model.getUser(id);
-//     } catch (err) {
-//         throw err;
-//     }
-
-// }
-// async function getUserByIdWithPassword(userName,password) {
-//     try {
-//         const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-//         const userPassword =  model.getUserWithPassword(userName);
-      
-//         if (user && userPassword === hashedPassword) {
-//             return user; // סיסמה תואמת
-//         } else {
-//             return null; // סיסמה לא תואמת או משתמש לא קיים
-//         }
-//     } catch (err) {
-//         throw err;
-//     }
-
-// }
-// async function checkIfUserExistsByUsername(userName) {
-//     try {
-//         return model.checkByUsername(userName);
-//     } catch (err) {
-//         throw err;
-//     }
-
-// }
-// async function getAllUsers() {
-//     try {
-//         return model.getAllUsers();
-//     } catch (err) {
-//         throw err;
-//     }
-// }
-// async function deleteUserById(id) {
-//     try {
-//         return model.deleteUser(id);
-//     } catch (err) {
-//         throw err;
-//     }
-
-// }
-// async function putUserController(id,name,username,email,street, city,phone) {
-//     try {
-//         return model.putUser(id,name,username,email,street, city,phone);
-//     } catch (err) {
-//         throw err;
-//     }
-// }
-
-// async function postUserController(name, username,email,street,city,phone,password) {
-
-// try {
-//     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+async function addAuditorium(auditoriumName) {
+    try {
+      return await model.addAuditorium(auditoriumName);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+}
+async function putAuditorium(name, parts) {
+  try {
+    const affectedRows = await model.putAuditorium(name);
+    if (affectedRows === 0) {
+      throw new Error("error: auditorium isn't updated in the db");
+    }
+    const auditoriumId = await model.getAuditoriumById(name);
    
-//     return model.postUser(name, username, email, street, city, phone, hashedPassword);
-// } catch (err) {
-//     throw err;
-// }
+    if (!auditoriumId.auditoriumId) {
+      throw new Error("auditorium doesn't exist");
+    }
 
-// }
+    const partInsertIds = [];
 
+    for (const part of parts) {
+      
+      const partInsertId = await audPartModel.postAuditoriumParts(auditoriumId.auditoriumId, part.title);
+      if (!partInsertId) {
+        throw new Error("could not update parts");
+      }
+      partInsertIds.push(partInsertId);
 
-// module.exports = { getUserById,getAllUsers,getUserByIdWithPassword,checkIfUserExistsByUsername ,deleteUserById,putUserController,postUserController}
+      for (let rowIndex = 0; rowIndex < part.matrix.length; rowIndex++) {
+        let countIndex=1;
+        for (let colIndex = 0; colIndex < part.matrix[rowIndex].length; colIndex++) {
+          const seatIsVisible = part.matrix[rowIndex][colIndex];
+          if(seatIsVisible){
+            await seatsModel.postSeatsView(rowIndex, countIndex, partInsertId, seatIsVisible);
+            countIndex++;
+          }
+          else {
+            await seatsModel.postSeatsView(rowIndex, 0, partInsertId, seatIsVisible);
+          }
+         
+        }
+      }
+    }
+
+    return { success: true, auditoriumId, partInsertIds };
+
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+}
+module.exports = { getAllAuditoriums, addAuditorium,putAuditorium };

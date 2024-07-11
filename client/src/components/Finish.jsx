@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import emailjs from 'emailjs-com';
+import "../css/Finish.css";
+
 
 function Finish({ mySeats, personalInfo }) {
+
   const { id } = useParams();
   const navigate = useNavigate();
-  const [screenshot, setScreenshot] = useState(null);
+  // const [screenshot, setScreenshot] = useState(null);
 
   useEffect(() => {
-    const storedScreenshot = localStorage.getItem("screenshot");
-    setScreenshot(storedScreenshot);
+    // const storedScreenshot = localStorage.getItem("screenshot");
+    // setScreenshot(storedScreenshot);
 
     const updateSeats = async () => {
       try {
@@ -18,6 +21,7 @@ function Finish({ mySeats, personalInfo }) {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ eventId: id, seatIds: seatIds }),
+          credentials: "include"
         });
         if (!response.ok) {
           throw new Error('Failed to update seat statuses');
@@ -39,12 +43,12 @@ function Finish({ mySeats, personalInfo }) {
             userPhone: personalInfo.phone,
             userEmail: personalInfo.email,
           }),
+          credentials: "include"
         });
         if (!response.ok) {
           throw new Error('Failed to add user');
         }
-        const data = await response.json();
-        console.log('User added:', data);
+       
       } catch (error) {
         console.error('Error adding user:', error);
       }
@@ -54,32 +58,24 @@ function Finish({ mySeats, personalInfo }) {
       const emailParams = {
         user_name: `${personalInfo.firstName} ${personalInfo.lastName}`,
         user_email: personalInfo.email,
-        message: 'Thank you for your purchase. Attached is your ticket.',
-        attachment: screenshot,
+        message: `Thank you for your purchase. Attached is your ticket. ${mySeats.map(seat => `ROW: ${seat.rowNumber} SEAT: ${seat.seatNumber}`).join(', ')}`,
       };
       emailjs.send('service_cg62ejf', 'template_nlwwqay', emailParams, 'Gg5fOmRM5xl63Jlko')
         .then((result) => {
-          console.log('Email sent:', result.text);
+         console.log('Email sent:', result.text);
         }, (error) => {
           console.error('Error sending email:', error.text);
         });
     };
 
-    if (storedScreenshot) {
       updateSeats();
       addUser();
       sendEmail();
-    } else {
-      console.error('No screenshot found in local storage');
-    }
-  }, [mySeats, personalInfo, id, screenshot, navigate]);
+   } ,[mySeats, personalInfo, id, navigate]);
 
   return (
-    <div>
-      {screenshot && <img src={screenshot} alt="Screenshot" />}
-      <h1>הנתונים נשמרו בהצלחה. 
-        נשלח מייל לכתובת המייל שציינת. 
-        תודה שביקרת בטיקצא'ק. מחכים לכם</h1>
+    <div className='success-message-finish'>
+      <h1> The data was saved successfully. An email will be sent to the email address you specified. Thank you for visiting Tikchak. waiting for you!</h1>
     </div>
   );
 }
